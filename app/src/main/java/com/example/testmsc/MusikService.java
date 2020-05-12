@@ -33,7 +33,7 @@ class MusicService extends Service implements
     //song list
     private ArrayList<Song> songs;
     //current position
-    private int songPosn;
+    private int songPosition;
     //binder
     private final IBinder musicBind = new MusicBinder();
     //title of current song
@@ -48,7 +48,7 @@ class MusicService extends Service implements
         //create the service
         super.onCreate();
         //initialize position
-        songPosn=0;
+        songPosition =0;
         //random
         rand=new Random();
         //create player
@@ -99,7 +99,7 @@ class MusicService extends Service implements
         //play
         player.reset();
         //get song
-        Song playSong = songs.get(songPosn);
+        Song playSong = songs.get(songPosition);
         //get title
         songTitle=playSong.getTitle();
         //get id
@@ -120,7 +120,7 @@ class MusicService extends Service implements
 
     //set the song
     public void setSong(int songIndex){
-        songPosn=songIndex;
+        songPosition =songIndex;
     }
 
     @Override
@@ -188,23 +188,23 @@ class MusicService extends Service implements
 
     //skip to previous track
     public void playPrev(){
-        songPosn--;
-        if(songPosn<0) songPosn=songs.size()-1;
+        songPosition--;
+        if(songPosition <0) songPosition =songs.size()-1;
         playSong();
     }
 
     //skip to next
     public void playNext(){
         if(shuffle){
-            int newSong = songPosn;
-            while(newSong==songPosn){
+            int newSong = songPosition;
+            while(newSong== songPosition){
                 newSong=rand.nextInt(songs.size());
             }
-            songPosn=newSong;
+            songPosition =newSong;
         }
         else{
-            songPosn++;
-            if(songPosn>=songs.size()) songPosn=0;
+            songPosition++;
+            if(songPosition >=songs.size()) songPosition =0;
         }
         playSong();
     }

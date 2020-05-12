@@ -26,10 +26,10 @@ import java.util.Comparator;
 public class MainActivity extends AppCompatActivity implements MediaPlayerControl{
 
     private ArrayList<Song> songList;
-    private ListView songView;
+    private ListView songViews;
 
     //service
-    private MusicService musicSrv;
+    private MusicService musicService;
     private Intent playIntent;
     //binding
     private boolean musicBound=false;
@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         setContentView(R.layout.activity_main);
 
         //retrieve list view
-        songView = (ListView)findViewById(R.id.song_list);
+        songViews = (ListView)findViewById(R.id.song_list);
         //instantiate list
         songList = new ArrayList<Song>();
         //get songs from device
@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         });
         //create and set adapter
         SongAdapter songAdt = new SongAdapter(this, songList);
-        songView.setAdapter(songAdt);
+        songViews.setAdapter(songAdt);
 
         //setup controller
         setController();
@@ -72,9 +72,9 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         public void onServiceConnected(ComponentName name, IBinder service) {
             MusicService.MusicBinder binder = (MusicService.MusicBinder)service;
             //get service
-            musicSrv = binder.getService();
+            musicService = binder.getService();
             //pass list
-            musicSrv.setList(songList);
+            musicService.setList(songList);
             musicBound = true;
         }
 
@@ -97,8 +97,8 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
 
     //user song select
     public void songPicked(View view){
-        musicSrv.setSong(Integer.parseInt(view.getTag().toString()));
-        musicSrv.playSong();
+        musicService.setSong(Integer.parseInt(view.getTag().toString()));
+        musicService.playSong();
         if(playbackPaused){
             setController();
             playbackPaused=false;
@@ -118,11 +118,11 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         //menu item selected
         switch (item.getItemId()) {
             case R.id.action_shuffle:
-                musicSrv.setShuffle();
+                musicService.setShuffle();
                 break;
             case R.id.action_end:
                 stopService(playIntent);
-                musicSrv=null;
+                musicService =null;
                 System.exit(0);
                 break;
         }
@@ -182,39 +182,39 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
 
     @Override
     public int getCurrentPosition() {
-        if(musicSrv!=null && musicBound && musicSrv.isPng())
-            return musicSrv.getPosn();
+        if(musicService !=null && musicBound && musicService.isPng())
+            return musicService.getPosn();
         else return 0;
     }
 
     @Override
     public int getDuration() {
-        if(musicSrv!=null && musicBound && musicSrv.isPng())
-            return musicSrv.getDur();
+        if(musicService !=null && musicBound && musicService.isPng())
+            return musicService.getDur();
         else return 0;
     }
 
     @Override
     public boolean isPlaying() {
-        if(musicSrv!=null && musicBound)
-            return musicSrv.isPng();
+        if(musicService !=null && musicBound)
+            return musicService.isPng();
         return false;
     }
 
     @Override
     public void pause() {
         playbackPaused=true;
-        musicSrv.pausePlayer();
+        musicService.pausePlayer();
     }
 
     @Override
     public void seekTo(int pos) {
-        musicSrv.seek(pos);
+        musicService.seek(pos);
     }
 
     @Override
     public void start() {
-        musicSrv.go();
+        musicService.go();
     }
 
     //set the controller up
@@ -239,7 +239,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     }
 
     private void playNext(){
-        musicSrv.playNext();
+        musicService.playNext();
         if(playbackPaused){
             setController();
             playbackPaused=false;
@@ -248,7 +248,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     }
 
     private void playPrev(){
-        musicSrv.playPrev();
+        musicService.playPrev();
         if(playbackPaused){
             setController();
             playbackPaused=false;
@@ -280,7 +280,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     @Override
     protected void onDestroy() {
         stopService(playIntent);
-        musicSrv=null;
+        musicService =null;
         super.onDestroy();
     }
 }
